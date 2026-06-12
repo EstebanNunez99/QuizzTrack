@@ -3,10 +3,8 @@ version: '3.8'
 services:
   db:
     image: postgres:15-alpine
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: password123
-      POSTGRES_DB: quizztrack
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     volumes:
@@ -17,10 +15,8 @@ services:
       context: ./backend
     ports:
       - "4000:4000"
-    environment:
-      - DATABASE_URL=postgresql://admin:password123@db:5432/quizztrack?schema=public
-      - JWT_SECRET=quizztrack_mvp_super_secret_key
-      - PORT=4000
+    env_file:
+      - ./backend/.env
     depends_on:
       - db
     # Volúmenes para que el código se recargue (Hot-Reload) en local
@@ -33,6 +29,8 @@ services:
       context: ./frontend
     ports:
       - "5173:5173"
+    env_file:
+      - ./frontend/.env
     # Volúmenes para que Vite detecte los cambios de React automáticamente
     volumes:
       - ./frontend:/app

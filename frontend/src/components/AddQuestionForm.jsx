@@ -4,11 +4,11 @@ import { Plus, Check, X, Trash2, ArrowRight, Image as ImageIcon } from 'lucide-r
 export default function AddQuestionForm({ quizId, token, onAdded, initialData, onCancel }) {
   const [type, setType] = useState('MULTIPLE_CHOICE');
   const [text, setText] = useState('');
-  const [points, setPoints] = useState(1);
+  const [points, setPoints] = useState(5);
   const [imageUrl, setImageUrl] = useState(null);
   const [imageFile, setImageFile] = useState(null);
   const [options, setOptions] = useState([{ text: '', isCorrect: false, matchCorrect: '', isDistractor: false, imageUrl: null, imageFile: null }, { text: '', isCorrect: false, matchCorrect: '', isDistractor: false, imageUrl: null, imageFile: null }]);
-  
+
   const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000/api';
 
   useEffect(() => {
@@ -22,9 +22,9 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
       } else if (initialData.type === 'TRUE_FALSE') {
         setOptions(initialData.options.map(o => ({ text: o.text, isCorrect: o.isCorrect, matchCorrect: '', imageUrl: o.imageUrl || null, imageFile: null })));
       } else if (initialData.type === 'MATCHING') {
-        setOptions(initialData.options.map(o => ({ 
-          text: o.text, 
-          isCorrect: true, 
+        setOptions(initialData.options.map(o => ({
+          text: o.text,
+          isCorrect: true,
           matchCorrect: o.matchCorrect || '',
           isDistractor: o.text === '',
           imageUrl: o.imageUrl || null,
@@ -51,7 +51,7 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Subir imagen de la pregunta si existe
     let finalImageUrl = imageUrl;
     if (imageFile) {
@@ -83,23 +83,23 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
         finalOptions = tempOptions.map(o => ({ text: o.text, isCorrect: o.isCorrect, imageUrl: o.imageUrl }));
       }
     } else if (type === 'TEXT') {
-      finalOptions = []; 
+      finalOptions = [];
     }
 
-    const url = initialData 
-      ? `${API_URL}/quizzes/questions/${initialData.id}` 
+    const url = initialData
+      ? `${API_URL}/quizzes/questions/${initialData.id}`
       : `${API_URL}/quizzes/${quizId}/questions`;
     const method = initialData ? 'PUT' : 'POST';
 
     const res = await fetch(url, {
       method,
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         Authorization: `Bearer ${token}`
       },
       body: JSON.stringify({ type, text, points, imageUrl: finalImageUrl, options: finalOptions })
     });
-    
+
     if (res.ok) {
       if (!initialData) {
         setText('');
@@ -152,8 +152,8 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="md:col-span-1">
             <label className="block text-sm font-medium text-zinc-700 mb-1.5">Tipo de Pregunta</label>
-            <select 
-              value={type} 
+            <select
+              value={type}
               onChange={(e) => {
                 setType(e.target.value);
                 if (e.target.value === 'MULTIPLE_CHOICE' && options.length < 2) {
@@ -161,7 +161,7 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
                 } else if (e.target.value === 'MATCHING' && options.length < 2) {
                   setOptions([{ text: '', isCorrect: true, matchCorrect: '', imageUrl: null, imageFile: null }, { text: '', isCorrect: true, matchCorrect: '', imageUrl: null, imageFile: null }]);
                 }
-              }} 
+              }}
               className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
               disabled={!!initialData}
             >
@@ -174,15 +174,15 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
           <div className="md:col-span-2 space-y-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1.5">Enunciado</label>
-              <textarea 
-                placeholder="Escribe la pregunta aquí..." 
+              <textarea
+                placeholder="Escribe la pregunta aquí..."
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                required 
+                required
                 className="w-full px-4 py-2.5 bg-zinc-50 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm min-h-[44px] resize-y placeholder:text-zinc-400"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1.5">Imagen Adjunta (Opcional)</label>
               <div className="flex items-center gap-4">
@@ -203,8 +203,8 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
 
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1.5">Puntos totales de la pregunta</label>
-              <input 
-                type="number" step="0.1" required 
+              <input
+                type="number" step="0.1" required
                 value={points} onChange={e => setPoints(parseFloat(e.target.value))}
                 className="w-full px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
               />
@@ -218,8 +218,8 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
             <label className="block text-sm font-medium text-zinc-700 mb-2">Opciones de Respuesta</label>
             {options.map((opt, i) => (
               <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 bg-white p-3 border border-zinc-200 rounded-lg">
-                <span className="text-xs font-semibold text-zinc-400 uppercase w-6">{(i+1).toString().padStart(2, '0')}</span>
-                
+                <span className="text-xs font-semibold text-zinc-400 uppercase w-6">{(i + 1).toString().padStart(2, '0')}</span>
+
                 <div className="flex-1 flex items-center gap-2 w-full">
                   {opt.imageUrl ? (
                     <div className="relative w-10 h-10 flex-shrink-0 rounded-md overflow-hidden border border-zinc-200">
@@ -234,23 +234,23 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
                       <input type="file" accept="image/*" onChange={(e) => handleOptionImageChange(i, e)} className="hidden" />
                     </label>
                   )}
-                  <input 
-                    value={opt.text} 
-                    placeholder={`Opción ${i+1}`}
+                  <input
+                    value={opt.text}
+                    placeholder={`Opción ${i + 1}`}
                     onChange={e => {
                       const newOpts = [...options];
                       newOpts[i].text = e.target.value;
                       setOptions(newOpts);
-                    }} 
-                    required 
+                    }}
+                    required
                     className="flex-1 px-3 py-2 bg-zinc-50 border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
-                  /> 
+                  />
                 </div>
 
                 <div className="flex items-center gap-2">
                   <label className="flex items-center gap-2 text-sm text-zinc-700 cursor-pointer bg-zinc-50 px-3 py-2 border border-zinc-200 rounded-md hover:bg-zinc-100 transition-colors">
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={opt.isCorrect}
                       onChange={e => {
                         const newOpts = [...options];
@@ -258,12 +258,12 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
                         setOptions(newOpts);
                       }}
                       className="w-4 h-4 rounded border-zinc-300 text-green-600 focus:ring-green-600 cursor-pointer"
-                    /> 
+                    />
                     Es correcta
                   </label>
                   {options.length > 2 && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => removeOption(i)}
                       className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-md transition-all"
                       title="Borrar opción"
@@ -274,8 +274,8 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
                 </div>
               </div>
             ))}
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setOptions([...options, { text: '', isCorrect: false, matchCorrect: '', imageUrl: null, imageFile: null }])}
               className="mt-2 text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors flex items-center gap-1 px-8"
             >
@@ -289,13 +289,13 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
             <label className="block text-sm font-medium text-zinc-700 mb-2">Pares a Relacionar y Distractores</label>
             {options.map((opt, i) => (
               <div key={i} className={`flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 rounded-lg border ${opt.isDistractor ? 'bg-orange-50/50 border-orange-200' : 'bg-white border-zinc-200'}`}>
-                
+
                 {opt.isDistractor ? (
                   <span className="text-xs font-bold text-orange-600 uppercase tracking-wider w-24">Distractor</span>
                 ) : (
                   <>
-                    <span className="text-xs font-semibold text-zinc-400 uppercase w-6">{(i+1).toString().padStart(2, '0')}</span>
-                    
+                    <span className="text-xs font-semibold text-zinc-400 uppercase w-6">{(i + 1).toString().padStart(2, '0')}</span>
+
                     {opt.imageUrl ? (
                       <div className="relative w-10 h-10 flex-shrink-0 rounded-md overflow-hidden border border-zinc-200">
                         <img src={opt.imageUrl} alt="Preview" className="w-full h-full object-cover" />
@@ -310,36 +310,36 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
                       </label>
                     )}
 
-                    <input 
-                      value={opt.text} 
-                      placeholder={`Concepto ${i+1}`}
+                    <input
+                      value={opt.text}
+                      placeholder={`Concepto ${i + 1}`}
                       onChange={e => {
                         const newOpts = [...options];
                         newOpts[i].text = e.target.value;
                         setOptions(newOpts);
-                      }} 
-                      required 
+                      }}
+                      required
                       className="flex-1 px-3 py-2 bg-white border border-zinc-200 rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm"
                     />
                     <ArrowRight size={16} className="text-zinc-400 hidden sm:block" />
                   </>
                 )}
-                
-                <input 
-                  value={opt.matchCorrect || ''} 
-                  placeholder={opt.isDistractor ? "Respuesta falsa extra" : `Respuesta correcta para ${i+1}`}
+
+                <input
+                  value={opt.matchCorrect || ''}
+                  placeholder={opt.isDistractor ? "Respuesta falsa extra" : `Respuesta correcta para ${i + 1}`}
                   onChange={e => {
                     const newOpts = [...options];
                     newOpts[i].matchCorrect = e.target.value;
                     setOptions(newOpts);
-                  }} 
-                  required 
+                  }}
+                  required
                   className={`flex-1 px-3 py-2 bg-white rounded-md focus:outline-none focus:ring-2 focus:ring-zinc-900 text-sm border ${opt.isDistractor ? 'border-orange-300' : 'border-blue-200'}`}
-                /> 
+                />
                 <div className="flex items-center gap-2">
                   {(options.length > 2 || opt.isDistractor) && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => removeOption(i)}
                       className="p-2 text-zinc-400 hover:text-red-600 hover:bg-red-50 border border-transparent hover:border-red-100 rounded-md transition-all"
                       title="Borrar opción"
@@ -351,15 +351,15 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
               </div>
             ))}
             <div className="flex items-center gap-4 mt-2">
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setOptions([...options, { text: '', isCorrect: true, matchCorrect: '', isDistractor: false, imageUrl: null, imageFile: null }])}
                 className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors flex items-center gap-1"
               >
                 <Plus size={14} /> Añadir otro par
               </button>
-              <button 
-                type="button" 
+              <button
+                type="button"
                 onClick={() => setOptions([...options, { text: '', isCorrect: true, matchCorrect: '', isDistractor: true, imageUrl: null, imageFile: null }])}
                 className="text-sm font-medium text-orange-600 hover:text-orange-700 transition-colors flex items-center gap-1"
               >
@@ -374,11 +374,11 @@ export default function AddQuestionForm({ quizId, token, onAdded, initialData, o
             <label className="block text-sm font-medium text-zinc-700 mb-3">¿Cuál es la respuesta correcta?</label>
             <div className="flex gap-4">
               <label className="flex items-center gap-2 cursor-pointer bg-white border border-zinc-200 px-4 py-2.5 rounded-lg hover:border-zinc-300 transition-all">
-                <input type="radio" name={`tf_correct_${initialData?.id || 'new'}`} checked={options[0]?.isCorrect} required onChange={() => setOptions([{text:'Verdadero', isCorrect:true, imageUrl:null}, {text:'Falso', isCorrect:false, imageUrl:null}])} className="accent-zinc-900 w-4 h-4" /> 
+                <input type="radio" name={`tf_correct_${initialData?.id || 'new'}`} checked={options[0]?.isCorrect} required onChange={() => setOptions([{ text: 'Verdadero', isCorrect: true, imageUrl: null }, { text: 'Falso', isCorrect: false, imageUrl: null }])} className="accent-zinc-900 w-4 h-4" />
                 <span className="text-sm font-medium text-zinc-700">Verdadero</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer bg-white border border-zinc-200 px-4 py-2.5 rounded-lg hover:border-zinc-300 transition-all">
-                <input type="radio" name={`tf_correct_${initialData?.id || 'new'}`} checked={options[1]?.isCorrect} required onChange={() => setOptions([{text:'Verdadero', isCorrect:false, imageUrl:null}, {text:'Falso', isCorrect:true, imageUrl:null}])} className="accent-zinc-900 w-4 h-4" /> 
+                <input type="radio" name={`tf_correct_${initialData?.id || 'new'}`} checked={options[1]?.isCorrect} required onChange={() => setOptions([{ text: 'Verdadero', isCorrect: false, imageUrl: null }, { text: 'Falso', isCorrect: true, imageUrl: null }])} className="accent-zinc-900 w-4 h-4" />
                 <span className="text-sm font-medium text-zinc-700">Falso</span>
               </label>
             </div>
