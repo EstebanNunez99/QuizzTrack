@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  email     String    @unique
+  password  String
+  role      Role      @default(STUDENT) // ADMIN o STUDENT
+  attempts  Attempt[]
+}
+
+model Quiz {
+  id             Int       @id @default(autoincrement())
+  title          String
+  timeLimit      Int?      // en minutos
+  negativeScore  Boolean   @default(false) // Mantenido por retrocompatibilidad
+  passScore      Float     @default(1)     // Puntaje neto mínimo para aprobar
+  randomCount    Int?      // cuántas preguntas mostrar aleatoriamente
+  isActive       Boolean   @default(false) // Estado de visibilidad para estudiantes
+  questions      Question[]
+  attempts       Attempt[]
+}
+
+model Question {
+  id           Int       @id @default(autoincrement())
+  quizId       Int
+  quiz         Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  type         QType     // MULTIPLE_CHOICE, TRUE_FALSE, TEXT
+  text         String
+  points       Float     @default(1)
+  penaltyScore Float     @default(0.5)
+  explanation  String?
+  bibliography String?
+  imageUrl     String?   // URL de Cloudinary para la pregunta
+  difficulty   Int       @default(1)
+  tag          String?
+  options      Option[]
+}
+
+model Option {
+  id         Int      @id @default(autoincrement())
+  questionId Int
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  text         String
+  isCorrect    Boolean  @default(false)
+  matchCorrect String?  // El texto correcto con el que debe emparejarse (solo para MATCHING)
+  imageUrl     String?  // URL de Cloudinary para la opción
+}
+
+model Attempt {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quizId     Int
+  quiz       Quiz     @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  score      Float    @default(0)
+  timeUsed   Int      // en segundos
+  createdAt  DateTime @default(now())
+  answers    Answer[]
+}
+
+model Answer {
+  id               Int      @id @default(autoincrement())
+  attemptId        Int
+  attempt          Attempt  @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  questionId       Int      
+  selectedOptionId Int?     
+  textAnswer       String?  
+}
+
+enum Role {
+  ADMIN
+  STUDENT
+}
+
+enum QType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  TEXT
+  MATCHING
+}
